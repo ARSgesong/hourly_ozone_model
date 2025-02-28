@@ -1,6 +1,6 @@
 clear all
-filepath = ['/data01/sg/2023-静止卫星臭氧光化学反演/应用数据集_卫星全_1101/']; 
-TIFpath = ['/data01/sg/2023-静止卫星臭氧光化学反演/图产品-1101/'];
+filepath = ['/.../']; 
+TIFpath = ['/.../'];
 filelist = dir([filepath '*.mat']);
 
 calcmean = 1; %!!!!!!
@@ -15,7 +15,7 @@ for hour_idx = 1:length(hourlist)
         if isempty(applyset)
             continue
         end
-        disp("执行天数");
+        disp("day of the image");
         disp(i);
         O3 = zeros([720 1240]);
     
@@ -44,13 +44,13 @@ for hour_idx = 1:length(hourlist)
     TIFdata(isnan(TIFdata)) = 0;
 
     fileName = [TIFpath 'Mean_Surface_O3_LT' num2str(hourlist(hour_idx)+8) '.tif'];
-    %写入地理参考
+    %write georeference
     
-    DTM=TIFdata;                  %二维矩阵
-    rasterSize=size(DTM);        %矩阵大小
+    DTM=TIFdata;                 
+    rasterSize=size(DTM);      
     latlim= [18,54];
     lonlim= [73,135];
-    R = georefcells(latlim,lonlim,rasterSize);    %latlim,lonlim分别为1*2的南北、东西坐标界限。
-    geotiffwrite(fileName, DTM, R);     % 系统默认geotiffwrite第4/5参数选择是WGS84  
+    R = georefcells(latlim,lonlim,rasterSize);   
+    geotiffwrite(fileName, DTM, R);   
 
 end
