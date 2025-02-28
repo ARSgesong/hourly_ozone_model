@@ -1,18 +1,18 @@
 clear all
 
-pFilePath = '/data01/sg/静止卫星数据/HCHO/';
-pSaveDatapath = '/data01/sg/数据处理备份/GEMS-HCHO-L3/p1/';
+pFilePath = '....'; % The filepath to store the GEMS satellite HCHO products
+pSaveDatapath = '....'; % The filepath to store the processed L2 HCHO datasets
 
 Filelist = dir([pFilePath '*.nc']);
 pf = length(Filelist);
 
-%% 指定中国的范围
+%% designate the spatial range
 GRID_LAT_RANGE = [18,54];
 GRID_LONG_RANGE = [73,135];
 GRID_GAP_LAT = 0.05;
 GRID_GAP_LONG = 0.05;
 
-%% 格网
+%% gridding
 GRID_LAT_RANGE = minmax(GRID_LAT_RANGE);
 GRID_LONG_RANGE = minmax(GRID_LONG_RANGE);
 GRID_BIN_LAT = GRID_LAT_RANGE(1):GRID_GAP_LAT:GRID_LAT_RANGE(2);
@@ -31,8 +31,8 @@ data.GroudArea = ones(grid_rows,grid_cols,'single')*single(1e10);
 
 total_num = pf;
 cnt = 1;
-for i = 3123:pf
-    disp("执行文件数");
+for i = 1:pf 
+    disp("Number of processed documents");
     disp(i);
     disp(Filelist(i))
     pPath = strcat(pFilePath,Filelist(i).name);
@@ -111,7 +111,7 @@ for i = 3123:pf
     swaths.area_lat(:,:,4) = swaths_latitude(2:swaths_rows+1,1:swaths_cols  );
     swaths.area = nan(swaths_rows,swaths_cols,class(swaths_latitude));
     
-     % 定位
+     % positioning
     grid.swaths_ridx = nan(length(GRID_BIN_LAT),length(GRID_BIN_LONG));
     grid.swaths_cidx = nan(length(GRID_BIN_LAT),length(GRID_BIN_LONG));
 %         [grid_bin_lon,grid_bin_lat] = meshgrid(GRID_BIN_LONG,GRID_BIN_LAT);
@@ -149,7 +149,7 @@ for i = 3123:pf
       end
     end
     
-     % 赋值
+     % write into matrix
 %     for r = 1:grid_rows
 %       for c = 1:grid_cols
 %         switch_ridx = grid.swaths_ridx(r,c);
