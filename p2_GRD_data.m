@@ -1,14 +1,14 @@
 clear all
 %%
-pPM25Spath = '/data01/sg/卫星数据备份/辅助数据/pm/s2022_5km.xlsx';
-pPM25SpathSheet = 'Sheet1';%站点sheet页
-pPM25SpathRange = 'A2:G2027';%注意表中“行”“列”两列需先在XLS中计算好，保存为数值（已处理完成，计算方式已在XLS中公式保存，行列值以中国矩形区域（73,135E;18,54N）0.25°分辨率计算）
-pPM25path = '/data01/sg/卫星数据备份/辅助数据/pm/2023/';
+pPM25Spath = '...'; %filepath of ground-based monitoring sites
+pPM25SpathSheet = 'Sheet1';%Sheet of the specified sheets
+pPM25SpathRange = 'A2:G2027';
+pPM25path = '...';  %filepath of daily-level monitored air pollutantss
 
-%1读取中国pm25站点经纬度位置及编号文件（固定）1ID(char) 2name 3city 4lon 5lat
+%1 read the fixed information of ground monitoring sites in china with the latitude and longitude (fixed）1ID(char) 2name 3city 4lon 5lat
 [mPM25LocationdataNUM,mPM25LocationdataNAME] = xlsread(pPM25Spath,pPM25SpathSheet,pPM25SpathRange);
 
-%分辨率网格数量
+%specified resolution
 fb1 = 0.05;
 fb2 = 0.05;
 chinaC = round(roundn((135-73)/fb1,-2));
@@ -17,8 +17,8 @@ GRD = zeros(chinaR,chinaC);
 fillin =[];
 Filelist = dir([pPM25path,'*.csv']);
 % 152:length(Filelist)
-for i = 274:length(Filelist)
-    disp(['执行文件数' num2str(i) ',共' num2str(length(Filelist)) '个文件']);
+for i = 1:length(Filelist)
+    disp(['number of processed documents' num2str(i) ',total of ' num2str(length(Filelist))]);
     pYearStr = Filelist(i).name(13:16);
     pMonthStr = Filelist(i).name(17:18);
     pDayStr = Filelist(i).name(19:20);
@@ -33,8 +33,8 @@ for i = 274:length(Filelist)
         clear mO3 ;
         clear mO3data ;
         clear mO3textdata ;
-        pDelimiterIn   = ','; % 字符分隔符
-        pHeaderlinesIn = 1;   % 文件头的行数
+        pDelimiterIn   = ','; % separator
+        pHeaderlinesIn = 1;   % heading
 
         mNO2 = importdata([pPM25path,'china_sites_',pYearStr,pMonthStr,pDayStr,'.csv'], pDelimiterIn, pHeaderlinesIn);
         if(iscell(mNO2))
@@ -52,7 +52,7 @@ for i = 274:length(Filelist)
             end
             for q = 1:length(pStationIndex)
                 pStationIndexNum = pStationIndex(q);
-                %获取站点属性信息
+                %obtain the information of the monitoring sites
                 pStationName = mPM25LocationdataNAME(pStationIndexNum,2);
                 pCity = mPM25LocationdataNAME(pStationIndexNum,3);
                 pStationID = mPM25LocationdataNAME(pStationIndexNum,1);
