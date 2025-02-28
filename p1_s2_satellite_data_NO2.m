@@ -1,18 +1,18 @@
 clear all
-%% 读取和处理网格化卫星数据数据
-pLoadDatapath = '/data01/sg/数据处理备份/GEMS-NO2-L3/p1/';
-pSaveDatapath = '/data01/sg/数据处理备份/GEMS-NO2-L3/p2/';
+%% read and process the gridded satellite dataset
+pLoadDatapath = '/.../'; The filepath that stored the processed L2 NO2 datasets
+pSaveDatapath = '/.../'; The filepath to store the processed L3 NO2 datasets
 mFilelistNO2 = dir([pLoadDatapath,'*.mat']);
 pf = length(mFilelistNO2);
 j = -1;
 
-%% 指定中国的范围
+%% designate the spatial range
 GRID_LAT_RANGE = [18,54];
 GRID_LONG_RANGE = [73,135];
 GRID_GAP_LAT = 0.05;
 GRID_GAP_LONG = 0.05;
 
-%% 格网
+%% gridding
 GRID_LAT_RANGE = minmax(GRID_LAT_RANGE);
 GRID_LONG_RANGE = minmax(GRID_LONG_RANGE);
 GRID_BIN_LAT = GRID_LAT_RANGE(1):GRID_GAP_LAT:GRID_LAT_RANGE(2);
@@ -23,13 +23,13 @@ grid_row = length(GRID_BIN_LAT);
 
 total_num = pf;
 cnt = 1;
-for i = 2686:pf
-    % 避免重复归类计算
+for i = 1:pf
+    % avoid repetations
     if i <= j-1
         continue
     end
     
-%     disp("执行文件数");
+%     disp("number of processed documents");
 %     disp(i);
 %     disp(mFilelistNO2(i))
     pYearStr = mFilelistNO2(i).name(1:4);
