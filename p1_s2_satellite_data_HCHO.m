@@ -1,7 +1,7 @@
 clear all
 %% read and processed the gridded satellite dataset
-pLoadDatapath = '/.../'; The filepath that stored the processed L2 NO2 datasets
-pSaveDatapath = '/.../'; The filepath to store the processed L3 NO2 datasets
+pLoadDatapath = '/.../'; The filepath that stored the processed L2 HCHO datasets
+pSaveDatapath = '/.../'; The filepath to store the processed L3 HCHO datasets
 mFilelistHCHO = dir([pLoadDatapath,'*.mat']);
 pf = length(mFilelistHCHO);
 j = -1;
