@@ -1,18 +1,17 @@
 clear all
 
-pFilePath = '/data01/sg/静止卫星数据/UVindex/';
-pSaveDatapath = '/data01/sg/数据处理备份/GEMS-UV-L3/p1/';
-
+pFilePath = '....'; % The filepath to store the GEMS satellite UV products
+pSaveDatapath = '....'; % The filepath to store the processed L2 UV datasets
 Filelist = dir([pFilePath '*.nc']);
 pf = length(Filelist);
 
-%% 指定中国的范围
+%% designate the spatial range
 GRID_LAT_RANGE = [18,54];
 GRID_LONG_RANGE = [73,135];
 GRID_GAP_LAT = 0.05;
 GRID_GAP_LONG = 0.05;
 
-%% 格网
+%% gridding
 GRID_LAT_RANGE = minmax(GRID_LAT_RANGE);
 GRID_LONG_RANGE = minmax(GRID_LONG_RANGE);
 GRID_BIN_LAT = GRID_LAT_RANGE(1):GRID_GAP_LAT:GRID_LAT_RANGE(2);
@@ -30,8 +29,8 @@ data.GroudArea = ones(grid_rows,grid_cols,'single')*single(1e10);
 
 total_num = pf;
 cnt = 1;
-for i = 3214:pf
-    disp("执行文件数");
+for i = 1:pf
+    disp("number of processed documents");
     disp(i);
     disp(Filelist(i))
     pPath = strcat(pFilePath,Filelist(i).name);
@@ -146,7 +145,7 @@ for i = 3214:pf
       end
     end
     
-     % 赋值
+     % write into matrix
 %     for r = 1:grid_rows
 %       for c = 1:grid_cols
 %         switch_ridx = grid.swaths_ridx(r,c);
