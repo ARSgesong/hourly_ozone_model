@@ -1,20 +1,20 @@
 clear all
-%% 高程和地表覆盖数据
-disp('读取固定数据');
-%1读取SRTM20s文件（tif固定）
-mSRTMdata=imread('/data01/sg/卫星数据备份/辅助数据/strm/chinaSRTM.tif');
-%2读取LandUC20s文件（tif固定）
-% mLandUCdata=imread('K:\辅助数据\CONUS\landuc\CONUSlanduc.tif');
+%% elevation and land use dataset
+disp('read fixed dataset');
+%1read SRTM20s files（fixed tif）
+mSRTMdata=imread('/.../'); %The filepath that stored the SRTM datasets
+%2read LandUC20s files（fixed tif）
+% mLandUCdata=imread('/.../'); %The filepath that stored the Land use datasets
 
 mSRTMdata =double(mSRTMdata);
 % mLandUCdata =double(mLandUCdata);
-%分辨率网格数量
+%specify the spatial resolution
 fbl = 0.05;
 fb2 = 0.05;
 CONUSC = round(roundn((135-73)/fb2,-2));
 CONUSR =  round(roundn((54-18)/fb2,-2));
 
-%重采样至0.25°
+%resample to 0.25-deg
 mSRTMdata = imresize(mSRTMdata,[CONUSR CONUSC],'nearest');
 % mLandUCdata = imresize(mLandUCdata,[CONUSR CONUSC],'nearest');
 
@@ -22,10 +22,10 @@ data.mSRTMdata = mSRTMdata;
 % data.mLandUCdata = mLandUCdata;
 
 
-%% 读取ERA5数据
+%% read ERA5 files
 max_day = [31 28 31 30 31 30 31 31 30 31 30 31];
 
-pERA5path = '/data01/sg/卫星数据备份/ERA5-Land/';
+pERA5path = '/.../'; %The filepath that stored the ERA5 datasets
 
 clear mERA_s_time;
 clear mERA_s_u10china;
@@ -42,17 +42,17 @@ clear mERA_s_tpchina;
 sFilelist = dir([pERA5path 'S/' '*.nc']);
 pFilelist = dir([pERA5path 'P/' '*.nc']);
 
-for i = 17:20
-    disp(['执行文件数' num2str(i) ',共' num2str(length(sFilelist)) '个文件']);
+for i = 1:pf
+    disp(['number of documents processed' num2str(i) ',total of ' num2str(length(sFilelist))]);
     pYearStr = sFilelist(i).name(1:4);
     pMonthStr = sFilelist(i).name(5:6);
-%     pHourStr = '20'; %卫星当地下午2时，是UTC晚上8时
+%     pHourStr = '20'; %if a specific hour of observation is needed, please specify here
     month = str2num(pMonthStr);
     
-    mNDVIdata=imread(['/data01/sg/卫星数据备份/辅助数据/ndvi/',pYearStr,pMonthStr,'ndvi.tif']);
+    mNDVIdata=imread(['/.../']); %The filepath that stored the NDVI datasets
     mNDVIdata =double(mNDVIdata);
     mNDVIdata = imresize(mNDVIdata,[CONUSR CONUSC],'bilinear');
-    data.mNDVIdata = mNDVIdata./10000;%缩放至-1，1  >10000值无效 
+    data.mNDVIdata = mNDVIdata./10000;%scaled into -1，1  value >10000 is invalid
     
     mERA_s_time = ncread([pERA5path,'S/',sFilelist(i).name],'time');
     mERA_s_u10china = ncread([pERA5path,'S/',sFilelist(i).name],'u10');
@@ -119,7 +119,7 @@ for i = 17:20
             end
 
             %*****************************************************************************
-            %行列转index
+            % row-column conversion index
             indexRERA = size(mERA_s_u10china,1);
             indexCERA = size(mERA_s_u10china,2);
             pERATimeIndex= ones(indexRERA*indexCERA,1).*pERATimeIndex;
@@ -140,13 +140,13 @@ for i = 17:20
 %             pTabletciw = mERA_s_tciwchina(indexRCERA);
 %             pTabletclw = mERA_s_tclwchina(indexRCERA);
 %             pTablecape = mERA_s_capechina(indexRCERA);
-            %判断高程压力
+            %find the level-specific pressure
             mERA_p_levelchina = (mERA_p_levelchina.* 100)';
             if size(mERA_p_levelchina,1)>1
              mERA_p_levelchina = mERA_p_levelchina';
             end    
             pERARHIndex= repmat(mERA_p_levelchina,length(indexRCERA),1);
-            %注意测试
+            %batch test
             testaa = size(mERA_p_levelchina,2);
             if testaa ==1
             testaa = size(mERA_p_levelchina,1);
@@ -155,17 +155,17 @@ for i = 17:20
             pERARHIndex = abs(double(pERARHIndex) -testsp );
             [~,pTableRHindex]=min(pERARHIndex,[],2);
 
-            %获取地表相对湿度
-            %行列转index
+            %read relative humidity at the surface
+            %row-column conversion index
             
 
             indexH1ERA = size(mERA_p_rchina2,3);
 
-            %定位第4维
+            %define the new dimension
             indexRERAp = size(mERA_p_rchina2,1);
             indexCERAp = size(mERA_p_rchina2,2);
             indexRCERA4 = (pERATimeIndex -1).*(indexRERAp*indexCERAp*indexH1ERA);
-            %定位当前3维
+            %locate the 3D variable
         %     indexRC = (pTableERA5Col -1).*indexRERA + pTableERA5Row;
             indexRCERA3 = (pTableRHindex -1).*(indexRERA*indexCERA)+ [0:indexRERA*indexCERA-1]';
             indexRCERAt = indexRCERA4 + indexRCERA3;
@@ -189,7 +189,7 @@ for i = 17:20
 %             data.tclw = imresize(reshape(pTabletclw,[indexRERA indexCERA])',[CONUSR CONUSC],'nearest');
 %             data.cape = imresize(reshape(pTablecape,[indexRERA indexCERA])',[CONUSR CONUSC],'nearest');
 
-            out_path = strcat('/data01/sg/2023-静止卫星臭氧光化学反演/中间数据/AuxiliaryData/','AUX_',pYearStr,pMonthStr,pDayStr,pHourStr,'.mat');
+            out_path = strcat('/../'); %The filepath to store the processed auxiliary datasets
             save(out_path,'-struct','data','*');
 
         end
