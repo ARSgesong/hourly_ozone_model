@@ -26,29 +26,29 @@ import scipy.io as scio
 import os
 
 
-clf = lgb.Booster(model_file='/data01/sg/2023-静止卫星臭氧光化学反演/模型保存/model_all.txt')
-# clf = lgb.Booster(model_file='/data01/sg/2023-静止卫星臭氧光化学反演/模型保存/model_all_1101.txt')
+clf = lgb.Booster(model_file='/.../model_all.txt')
 
-filepath = '/data01/sg/2023-静止卫星臭氧光化学反演/匹配数据集_卫星全_0711/'
-savepath = '/data01/sg/2023-静止卫星臭氧光化学反演/应用数据集_卫星全_1101/'
+
+filepath = '/.../'
+savepath = '/.../'
 filelist = os.listdir(filepath)
 
 params = {
     'task': 'train',
-    'boosting_type': 'gbdt',  # 设置提升类型
-    'objective': 'regression',  # 目标函数
-    'metric': {'rmse'},  # 评估函数
-    'num_leaves': 1200,  # 叶子节点数 1200
-    'max_depth': 20,  # -1
-    'learning_rate': 0.03,  # 学习速率 0.05
-    'feature_fraction': 0.99,  # 建树的特征选择比例 0.75
-    'bagging_fraction': 0.99,  # 建树的样本采样比例 0.75
-    'bagging_freq': 1,  # k 意味着每 k 次迭代执行bagging
-    'verbose': -1,  # <0 显示致命的, =0 显示错误 (警告), >0 显示信息
+    'boosting_type': 'gbdt', 
+    'objective': 'regression', 
+    'metric': {'rmse'},  
+    'num_leaves': 1200, 
+    'max_depth': 20,
+    'learning_rate': 0.03, 
+    'feature_fraction': 0.99, 
+    'bagging_fraction': 0.99,  
+    'bagging_freq': 1, 
+    'verbose': -1, 
     'n_jobs': 64
 }
 
-for file in filelist[1212:1250]:
+for file in filelist:
     print(file)
     file_ob=filepath + file
     applyset = io.loadmat(file_ob)["pMatchData"]
