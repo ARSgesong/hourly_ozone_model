@@ -23,20 +23,16 @@ import scipy.io as scio
 import shap
 
 
-# dataset = scio.loadmat('/data01/sg/2023-静止卫星臭氧光化学反演/训练数据集/mDataTableS_GEMS_train.mat')["mDataTableS_GEMS"]
-dataset = scio.loadmat('/data01/sg/2023-静止卫星臭氧光化学反演/训练数据集_1023/mDataTableS_GEMS_train.mat')["mDataTableS_GEMS"]
-# dataset = scio.loadmat('/data01/sg/2023-静止卫星臭氧光化学反演/训练数据集_sp/mDataTableS_GEMS_train.mat')["mDataTableS_GEMS"]
-savepath = '/data01/sg/2023-静止卫星臭氧光化学反演/分析出图/shap/'
-# dataset = scio.loadmat('/data01/sg/2023-静止卫星臭氧光化学反演/训练数据集/mDataTableS_GEMS_train_HCHOfilter.mat')["mDataTableS_GEMS_HCHOfilter"]
+dataset = scio.loadmat('/.../')["mDataTableS_GEMS"]
+savepath = '/.../'
+
 # 11:12 SRTM, NDVI
 # 14:21 meteorological: t2 d2 sp u10 v10 tp e RH
 # 23:25 NO2: NO2,O3,SZA
 # 27:30 HCHO&UV: HCHO,uncertainty, UV,photo
 # 32 GRD_O3
 # 33:34 DOY,WK
-# dataset = dataset[dataset[:,7]!=11,:]
-# dataset = dataset[dataset[:,12]>-1,:]
-# dataset = dataset[dataset[:,11]<3000,:]
+# The following code provides an example to tune the input features to optimize the performance of ozone estimation
 dataset = dataset[dataset[:,14]>-9999,:]
 dataset = dataset[dataset[:,15]>-9999,:]
 dataset = dataset[dataset[:,16]>-9999,:]
@@ -51,23 +47,23 @@ data = dataset[:, [14,15,16,17,18,19,20,21,23,27,29,33,6,9,11,12]]
 
 target = dataset[:, [32]]
 
-# 将参数写成字典下形式
+
 params = {
     'task': 'train',
-    'boosting_type': 'gbdt',  # 设置提升类型
-    'objective': 'regression',  # 目标函数
-    'metric': {'rmse'},  # 评估函数
-    'num_leaves': 1200,  # 叶子节点数 1200
+    'boosting_type': 'gbdt',  
+    'objective': 'regression', 
+    'metric': {'rmse'}, 
+    'num_leaves': 1200,  
     'max_depth': 20,  # -1
-    'learning_rate': 0.05,  # 学习速率 0.05
-    'feature_fraction': 0.99,  # 建树的特征选择比例 0.75
-    'bagging_fraction': 0.99,  # 建树的样本采样比例 0.75
-    'bagging_freq': 1,  # k 意味着每 k 次迭代执行bagging
-    'verbose': -1,  # <0 显示致命的, =0 显示错误 (警告), >0 显示信息
+    'learning_rate': 0.05,  
+    'feature_fraction': 0.99,  
+    'bagging_fraction': 0.99, 
+    'bagging_freq': 1, 
+    'verbose': -1, 
     'n_jobs': 16
 }
 
-# 十折交叉验证
+# cross-validation
 folds = KFold(n_splits=10, shuffle=True, random_state=1)
 applyset =  np.zeros((data.shape[0],dataset.shape[1]))
 predset = np.zeros((data.shape[0]))
@@ -88,14 +84,14 @@ for fold_, (trn_idx, val_idx) in enumerate(folds.split(data, target)):
     val_data = lgb.Dataset(x_va, y_va, reference=trn_data)
 
     clf = lgb.train(params, trn_data, num_boost_round=3000, valid_sets=val_data, early_stopping_rounds=50,
-                    verbose_eval=50)  # 训练数据需要参数列表和数据集
+                    verbose_eval=50)  
 
     y_pred = clf.predict(x_va, num_iteration=clf.best_iteration)
     y_test = y_va.flatten()
     
-    # 评估模型
-    print('The rmse of prediction is:', mean_squared_error(y_test, y_pred) ** 0.5)  # 计算真实值和预测值之间的均方根误差
-    print('The R2 of prediction is:', r2_score(y_test, y_pred, multioutput='raw_values'))  # 计算真实值和预测值之间的R2
+    # model evaluation
+    print('The rmse of prediction is:', mean_squared_error(y_test, y_pred) ** 0.5)  
+    print('The R2 of prediction is:', r2_score(y_test, y_pred, multioutput='raw_values'))  
     
     predset[val_idx] = clf.predict(x_va, num_iteration=clf.best_iteration)
     testset[val_idx] = y_va.flatten()
@@ -104,14 +100,14 @@ for fold_, (trn_idx, val_idx) in enumerate(folds.split(data, target)):
     r.append(r2_score(y_test, y_pred, multioutput='raw_values'))
     rmse.append(mean_squared_error(y_test, y_pred) ** 0.5)
 
-print('Final rmse of prediction is:', np.mean(r))  # 计算真实值和预测值之间的均方根误差
-print('Final R2 of prediction is:', np.mean(rmse))  # 计算真实值和预测值之间的R2
-print('Final rmse of prediction is:', mean_squared_error(testset, predset) ** 0.5)  # 计算真实值和预测值之间的均方根误差
-print('Final R2 of prediction is:', r2_score(testset, predset, multioutput='raw_values'))  # 计算真实值和预测值之间的R2 
+print('Final rmse of prediction is:', np.mean(r))  
+print('Final R2 of prediction is:', np.mean(rmse)) 
+print('Final rmse of prediction is:', mean_squared_error(testset, predset) ** 0.5)  
+print('Final R2 of prediction is:', r2_score(testset, predset, multioutput='raw_values'))  
 
 applyset = np.c_[applyset,testset]
 applyset = np.c_[applyset,predset]
-dataNew = '/data01/sg/2023-静止卫星臭氧光化学反演/中间数据/applyset_sp.mat'
+dataNew = '/.../'
 
 scio.savemat(dataNew, {'applyset':applyset})
 
