@@ -1,17 +1,17 @@
 clear all
 %%
-GEMS_NO2_path = '/data01/sg/数据处理备份/GEMS-NO2-L3/p2/';
-GEMS_HCHO_path = '/data01/sg/数据处理备份/GEMS-HCHO-L3/p2/';
-GEMS_UV_path = '/data01/sg/数据处理备份/GEMS-UV-L3/p2/';
-AUX_path = '/data01/sg/2023-静止卫星臭氧光化学反演/中间数据/AuxiliaryData/';
+GEMS_NO2_path = '/.../'; %The filepath that stored the processed L3 NO2 datasets
+GEMS_HCHO_path = '/.../'; %The filepath that stored the processed L3 HCHO datasets
+GEMS_UV_path = '/.../'; %The filepath that stored the processed L3 UV datasets
+AUX_path = '/.../'; %The filepath that stored the processed L3 auxiliary datasets
 
-O3_GRD_path = '/data01/sg/2023-静止卫星臭氧光化学反演/中间数据/GRDdata/';
-pSaveDatapath = '/data01/sg/2023-静止卫星臭氧光化学反演/匹配数据集_卫星全_0711/';
-pSaveSDatapath = '/data01/sg/2023-静止卫星臭氧光化学反演/训练数据集_1023/';
+O3_GRD_path = '/.../'; %The filepath that stored the processed L3 monitored air pollution datasets
+pSaveDatapath = '/.../'; %The filepath to store the matched dataset
+pSaveSDatapath = '/.../'; %The filepath to store the matched dataset with site observations
 
 Filelist = dir([GEMS_NO2_path,'*.mat']);
 pf = length(Filelist)
-%分辨率网格数量
+%specify the spatial resolution
 fb1 = 0.05;
 fb2 = 0.05;
 CONUSC = round(roundn((135-73)/fb1,-2));
@@ -21,8 +21,8 @@ Longitude_China=73+fb1/2:fb1:135-fb1/2;
 Latitude_China=flip(18+fb2/2:fb2:54-fb2/2);
 record=[];
 mDataTableS_GEMS = [];
-for i = 2080:pf
-    disp(['执行文件数' num2str(i) ',共' num2str(length(Filelist)) '个文件']);
+for i = 1:pf
+    disp(['number of processed documents' num2str(i) ',total of' num2str(length(Filelist))']);
     pYearStr = Filelist(i).name(1:4);
     pMonthStr = Filelist(i).name(6:7);
     pDayStr = Filelist(i).name(8:9);
